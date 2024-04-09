@@ -10,6 +10,8 @@ import csv
 import collections
 import pandas_ta as ta
 from ta.volatility import AverageTrueRange
+import os.path
+
 yfinance.pdr_override()
 
 
@@ -22,8 +24,12 @@ def calc_ROC(data,niftydf,n):
  #print(data)
  #print(niftydf)
  niftyroc = niftydf['Rate of Change'].shift(0)
- arrATR = AverageTrueRange(high=data['high']/FACTOR,low=data['low']/FACTOR,close=data['adjusted_close'],window=14).average_true_range()
-
+ try:
+  arrATR = AverageTrueRange(high=data['high']/FACTOR,low=data['low']/FACTOR,close=data['adjusted_close'],window=14).average_true_range()
+ except Exception:
+  print("exception")
+  arrATR=""
+  pass
  #print(N)
  #DICTF = float(mydictframe.shift(0))
  #print(DICTF)
@@ -35,7 +41,7 @@ def calc_ROC(data,niftydf,n):
  ROC = pd.Series(N/D,name='Rate of Change')
  data = data.join(ROC)
  EMA = ta.ema(data["adjusted_close"], length=20, fillna="")
- RSSTOCK = pd.Series((N/D)/niftyroc,name="StockRS")
+ #RSSTOCK = pd.Series((N/D)/niftyroc,name="StockRS")
  VOLUME = ta.ema(data["volume"], length=20, fillna="")
  EMACSV = pd.Series(EMA,name='20EMA')
  VOLUMECSV = pd.Series(VOLUME,name='20VOLEMA')
@@ -43,7 +49,7 @@ def calc_ROC(data,niftydf,n):
  data = data.join(EMACSV)
  data = data.join(VOLUMECSV)
  data = data.join(ATRCSV)
- data = data.join(RSSTOCK)
+ #data = data.join(RSSTOCK)
  #RS = pd.Series((N/D)/DICTF,name='RS')
  #data = data.join(RS)
  return data 
@@ -75,9 +81,11 @@ with open('NSE_LIST_OF_SYMBOLS.csv') as file_obj:
         continue;
     niftyloop = niftyloop+1
     if(niftyloop > 1000):
+      if(os.path.isfile("files/"+row[0]+".csv")):
+          continue
       api_key = 'YOUR API KEY'
-      api_url= f'https://eodhd.com/api/eod/'+row[0]+'.NSE?from=2021-06-01&api_token=""&fmt=json'
-      #api_url = f'https://eodhistoricaldata.com/api/technical/'+row[0]+'.NSE?order=a&fmt=json&from="2023-01-01"&function=splitadjusted&api_token=""'
+      api_url= f'https://eodhd.com/api/eod/'+row[0]+'.NSE?from=2022-01-01&api_token=""&fmt=json'
+      #api_url = f'https://eodhistoricaldata.com/api/technical/'+row[0]+'.NSE?order=a&fmt=json&from="2023-01-01"&function=splitadjusted&api_token='
       print(api_url)
       #niftydf = pd.read_csv("files/nifty.csv",delimiter="\t")
       #niftydfvalue = pd.DataFrame(niftydf)
@@ -91,13 +99,13 @@ with open('NSE_LIST_OF_SYMBOLS.csv') as file_obj:
       #ROC = STOCK_ROC['Rate of Change']
       filename = "files/"+row[0]+".csv"
       STOCK_ROC.to_csv(filename, sep='\t')
-      #with open("files/"+row[0]+".csv", mode='r') as infile:
-      #  rscalc = collections.OrderedDict()
-      #  for line in infile:
-      #      data_line = line.rstrip().split('\t')
-      #      if(data_line[1] in mydict and len(data_line) > 8 and data_line[8]!=""):
-      #        rscalc[data_line[1]] = float(data_line[8])/float(mydict[data_line[1]])
-      #        pd.DataFrame.from_dict(data=rscalc, orient='index').to_csv("files/"+row[0]+"_rs.csv", header=False)
+      with open("files/"+row[0]+".csv", mode='r') as infile:
+        rscalc = collections.OrderedDict()
+        for line in infile:
+            data_line = line.rstrip().split('\t')
+            if(data_line[1] in mydict and len(data_line) > 8 and data_line[8]!=""):
+              rscalc[data_line[1]] = float(data_line[8])/float(mydict[data_line[1]])
+              pd.DataFrame.from_dict(data=rscalc, orient='index').to_csv("files/"+row[0]+"_rs.csv", header=False)
 
 #data = pdr.get_data_yahoo("^NSEI", start="2015-06-01", end="2016-01-01") 
 
