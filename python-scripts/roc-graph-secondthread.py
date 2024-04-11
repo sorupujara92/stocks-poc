@@ -107,33 +107,3 @@ with open('NSE_LIST_OF_SYMBOLS.csv') as file_obj:
               rscalc[data_line[1]] = float(data_line[8])/float(mydict[data_line[1]])
               pd.DataFrame.from_dict(data=rscalc, orient='index').to_csv("files/"+row[0]+"_rs.csv", header=False)
 
-#data = pdr.get_data_yahoo("^NSEI", start="2015-06-01", end="2016-01-01") 
-
-#print(data)
-#data = pd.DataFrame(data)
-
-# Compute the 5-period Rate of Change for NIFTY
-#n = 100
-#NIFTY_ROC = ROC(data,n)
-#ROC = NIFTY_ROC['Rate of Change']
-#print(ROC)
-#filename = "university_records.csv"
-#NIFTY_ROC.to_csv(filename, sep='\t')
- 
-# writing to csv file
-
-
-# Plotting the Price Series chart and the Ease Of Movement below
-#fig = plt.figure(figsize=(7,5))
-#ax = fig.add_subplot(2, 1, 1)
-#ax.set_xticklabels([])
-#plt.plot(data['close'],lw=1)
-#plt.title('NSE Price Chart')
-#plt.ylabel('Close Price')
-#plt.grid(True)
-#bx = fig.add_subplot(2, 1, 2)
-#plt.plot(ROC,'k',lw=0.75,linestyle='-',label='ROC')
-#plt.legend(loc=2,prop={'size':9})
-#plt.ylabel('ROC values')
-#plt.grid(True)
-#plt.setp(plt.gca().get_xticklabels(), rotation=30)
